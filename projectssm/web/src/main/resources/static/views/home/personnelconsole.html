@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layuiAdmin 控制台主页一</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="../../layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+  
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-col-md12">
+        <div class="layui-row layui-col-space15">
+          <div class="layui-col-md6">
+            <div class="layui-card" style="height: 400px">
+              <div class="layui-card-header">任务统计</div>
+              <div class="layui-card-body">
+                    
+                <div class=" layadmin-carousel layadmin-shortcut">
+                  <div carousel-item>
+                    <ul class="layui-row layui-col-space10">
+
+                      <div style="width: 785px;height: 225px;">
+                        <div class="layui-input-inline" style="padding-left: 150px;padding-top: 100px">
+                          <font id="its1" color="#8076a3" size="17">0.0%</font>
+                          <br>
+                          <cite>完成度</cite>
+                        </div>
+                        <div class="layui-input-inline" style="padding-left: 200px;padding-top: 100px;">
+                          <font id="its2" color="#c04851" size="17">0.0%</font>
+                          <br>
+                          <cite>延期率</cite>
+                        </div>
+
+
+                      </div>
+
+                      <li class="layui-col-xs3">
+                        <a lay-href="component/progress/index.html">
+                          <b class="layui-icon" id="its3">28</b>
+                          <cite>总数</cite>
+                        </a>
+                      </li>
+                      <li class="layui-col-xs3">
+                        <a lay-href="component/progress/index.html">
+                          <b class="layui-icon" id="its4">28</b>
+                          <cite style="color:#8076a3">已完成</cite>
+                        </a>
+                      </li>
+                      <li class="layui-col-xs3">
+                        <a lay-href="component/progress/index.html">
+                          <b class="layui-icon" id="its5">28</b>
+                          <cite style="color:#fed71a">未完成</cite>
+                        </a>
+                      </li>
+                      <li class="layui-col-xs3">
+                        <a lay-href="component/progress/index.html">
+                          <b class="layui-icon" id="its6">28</b>
+                          <cite style="color:red">延期</cite>
+                        </a>
+                      </li>
+                    </ul>
+                    
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          <div class="layui-col-md6">
+            <div class="layui-card" style="height: 400px">
+              <div class="layui-card-header">今日任务</div>
+              <div class="layui-card-body">
+
+                <div class=" layadmin-carousel layadmin-backlog">
+                  <div carousel-item>
+                    <ul class="layui-row layui-col-space10">
+                      <li class="layui-col-xs6">
+                        <a lay-href="project_list.html" class="layadmin-backlog-body">
+                          <h3>所有</h3>
+                          <p><cite id="its7">0</cite></p>
+                        </a>
+                      </li>
+                      <li class="layui-col-xs6">
+                        <a lay-href="project_list.html" class="layadmin-backlog-body">
+                          <h3>进行中</h3>
+                          <p><cite id="its8">0</cite></p>
+                        </a>
+                      </li>
+                      <li class="layui-col-xs6">
+                        <a lay-href="project_list.html" class="layadmin-backlog-body">
+                          <h3>已完成</h3>
+                          <p><cite  id="its9">0</cite></p>
+                        </a>
+                      </li>
+                      <li class="layui-col-xs6">
+                        <a lay-href="project_list.html" class="layadmin-backlog-body">
+                          <h3>已逾期任务</h3>
+                          <p><cite  id="its10">0</cite></p>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="layui-col-md12">
+            <div class="layui-card">
+              <div class="layui-card-header">任务概览</div>
+              <div class="layui-card-body">
+
+                <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade" lay-filter="LAY-index-pagetwo">
+                  <div carousel-item id="LAY-index-pagetwo">
+                    <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      
+
+      
+    </div>
+
+
+
+
+  </div>
+
+
+  <script src="../../layuiadmin/layui/layui.js?t=1"></script>  
+  <script>
+  layui.config({
+    base: '../../layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'console'],function(){
+
+    var $ = layui.$
+            ,form = layui.form
+            ,table = layui.table;
+
+    layui.define(function(exports){
+      var admin = layui.admin;
+
+      //区块轮播切换
+      layui.use(['admin', 'carousel'], function(){
+        var $ = layui.$
+                ,admin = layui.admin
+                ,carousel = layui.carousel
+                ,element = layui.element
+                ,device = layui.device();
+
+        //轮播切换，这一段必须要，不然echarts无法完成渲染
+        $('.layadmin-carousel').each(function(){
+          var othis = $(this);
+          carousel.render({
+            elem: this
+            ,width: '100%'
+            ,arrow: 'none'
+            ,interval: othis.data('interval')
+            ,autoplay: othis.data('autoplay') === true
+            ,trigger: (device.ios || device.android) ? 'click' : 'hover'
+            ,anim: othis.data('anim')
+          });
+        });
+
+        element.render('progress');
+
+      });
+
+
+
+
+      var timeArray=[];       //获取当前天往前推12天的日期集合
+      var currenttime= (new Date).getTime();
+      for (var i=-11;i<=0;i++){
+        timeArray.push(getNextDate(currenttime,i))
+      }
+      function getNextDate(date,day) {//data基准时间的时间戳，day:第几天
+        var dd = new Date(date);
+        dd.setDate(dd.getDate() + day);
+        var y = dd.getFullYear();
+        var m = dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() +1;
+        var d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate();
+        return y + "-" + m + "-" + d;
+      }
+      // console.log(JSON.stringify(timeArray));
+
+        var timeArray2=[];          //总任务
+        var timeArray3=[];         // 逾期或逾期完成
+        var timeArray4=[];          //当天完成
+        var staffid=null;
+      $.ajax({
+        url: '/user/index',
+        contentType: "application/json;charset=UTF-8",
+        type: 'get',
+        async :false,
+        success: function (data) {
+          $.ajax({
+            url: "/user/getstaffidbyuser/"+data,
+            type: 'get',
+            cache: false,
+            contentType : 'application/json; charset=utf-8',
+            success: function (text) {
+              staffid=text;
+              selectpersonnel(staffid);    //任务统计面板
+              var d = new Date();
+              var str = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();//获取当前年月日
+              // alert(str);
+              $.ajax({
+                url: "/task/selecttaskbydayandstaffid?date="+str+"&staffid="+staffid,
+                type: 'get',
+                cache: false,
+                async:false,
+                contentType : 'application/json; charset=utf-8',
+                success: function (res) {
+                  $('#its7').html(res.总任务);
+                  $('#its8').html(res.待完成);
+                  $('#its9').html(res.当天完成);
+                  $('#its10').html(res.已逾期任务);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                  alert(jqXHR.responseText);
+                }
+              });
+
+
+              for (var i=0;i<=11;i++){      //任务概览数据获取
+
+                $.ajax({
+                  url: "/task/selecttaskbydayandstaffid?date="+timeArray[i]+"&staffid="+staffid,
+                  type: 'get',
+                  cache: false,
+                  async:false,
+                  contentType : 'application/json; charset=utf-8',
+                  success: function (res) {
+                    timeArray2.push(res.总任务);
+                    timeArray3.push(res.逾期或逾期完成);
+                    timeArray4.push(res.当天完成);
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR.responseText);
+                  }
+                });
+              }
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert(jqXHR.responseText);
+            }          });
+
+        },
+        error: function (response) {
+          layer.msg(response.message);
+        }
+      });
+
+
+
+        console.log("233"+JSON.stringify(timeArray));
+        console.log("233"+JSON.stringify(timeArray2));
+        console.log("233"+JSON.stringify(timeArray3));
+        console.log("233"+JSON.stringify(timeArray4));
+
+
+      //访问量
+      layui.use(['carousel', 'echarts'], function(){
+        var $ = layui.$
+                ,carousel = layui.carousel
+                ,echarts = layui.echarts;
+
+        var echartsApp = [], options = [
+          {
+            tooltip : {
+              trigger: 'axis'
+            },
+            calculable : true,
+            legend: {
+              data:['总任务','逾期或逾期完成','当天已完成']
+            },
+
+            xAxis : [
+              {
+                type : 'category',
+                data : timeArray
+              }
+            ],
+            yAxis : [
+              {
+                type : 'value',
+                name : '任务数',
+                axisLabel : {
+                  formatter: '{value}'
+                }
+              },
+              {
+                type : 'value',
+                name : '逾期或逾期已完成任务',
+                axisLabel : {
+                  formatter: '{value}'
+                }
+              }
+            ],
+            series : [
+              {
+                name:'总任务',
+                type:'line',
+                data:timeArray2
+              },
+              {
+                name:'逾期或逾期完成',
+                type:'line',
+                yAxisIndex: 1,
+                data:timeArray3
+              },
+              {
+                name:'当天已完成',
+                type:'line',
+                data:timeArray4
+              }
+            ]
+          }
+        ]
+                ,elemDataView = $('#LAY-index-pagetwo').children('div')
+                ,renderDataView = function(index){
+          echartsApp[index] = echarts.init(elemDataView[index], layui.echartsTheme);
+          echartsApp[index].setOption(options[index]);
+          window.onresize = echartsApp[index].resize;
+        };
+        //没找到DOM，终止执行
+        if(!elemDataView[0]) return;
+        //请求服务端获取到数据后渲染图表
+        //admin.req({
+        // url: layui.setter.url + '/url'
+        //, type: 'post'
+        // , data: PARAM_DATE
+        //, done: function (res) { //这里要说明一下：done 是只有 response 的 code 正常才会执行。而 succese 则是只要 http 为 200 就会执行
+        //$.each(getRecentDay(-7,res.data), function(index, tmp) {
+        //categories.push(tmp.reg_date);
+        //  data.push(tmp.reg_num);
+        //});
+        renderDataView(0);
+        //}
+        //});
+
+      });
+
+      exports('test', {})
+    });
+
+
+
+
+    personnelproject({id:""});
+
+    function selectpersonnel(data) {
+      $.ajax({
+        url: "/task/selecttaskbydayandstaffid2/"+data,
+        type: 'get',
+        // data: JSON.stringify(data),
+        cache: false,
+        async: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (res) {
+          console.log(JSON.stringify(res));
+          $('#its1').html(res.完成度);
+          $('#its2').html(res.延期率);
+          $('#its3').html(res.总数);
+          $('#its4').html(res.已完成);
+          $('#its5').html(res.未完成);
+          $('#its6').html(res.逾期);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          // alert("==" + jqXHR.responseText);
+        }
+      });
+    }
+
+    function personnelproject(data) {
+      $.ajax({
+        url: "/project/personnelproject",
+        type: 'post',
+        data: JSON.stringify(data),
+        cache: false,
+        async: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (res) {
+          console.log(JSON.stringify(res));
+          $('#its7').html(res.所有);
+          $('#its8').html(res.进行中);
+          $('#its9').html(res.已完成);
+          $('#its10').html(res.已中止);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          // alert("==" + jqXHR.responseText);
+        }
+      });
+    }
+
+  });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layuiAdmin 工单系统</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="../../layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+      <div class="layui-form-item">
+        <div class="layui-inline">
+          <label class="layui-form-label">项目名称</label>
+          <div class="layui-input-block">
+            <input type="text" id="projectname" name="projectname" placeholder="请输入" autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-inline">
+          <label class="layui-form-label">项目甲方</label>
+          <div class="layui-input-block">
+            <input type="text" name="partya" placeholder="请输入" autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-inline">
+          <button class="layui-btn layuiadmin-btn-order" lay-submit lay-filter="LAY-app-order-search">
+            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="layui-card-body">
+      <table id="data-grid" class="layui-table" lay-filter="table1"></table>
+
+      <script type="text/html" id="tableGridToolbar">
+
+            </script>
+
+      <script type="text/html" id="table-content-list">
+        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="show"><i
+                class="layui-icon layui-icon-read"></i>查看</a>
+        <a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete"><i
+                class="layui-icon layui-icon-pause"></i>删除</a>
+        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="recover">
+          <i class="layui-icon layui-icon-play"></i>恢复</a>
+      </script>
+    </div>
+
+  </div>
+</div>
+<script src="../../common/js/jquery-3.3.1.min.js"></script>
+<script src="../../layuiadmin/layui/layui.js"></script>
+<script>
+  layui.config({
+    base: '../../layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'workorder', 'table'], function(){
+    var $ = layui.$
+            ,form = layui.form
+            ,table = layui.table;
+
+    tableIns({id:"",projectname:"",state:"2"});
+
+
+
+    //监听搜索
+    form.on('submit(LAY-app-order-search)', function(data){
+      var field = data.field;
+      field["state"]="2";
+      console.log(JSON.stringify(field));
+      tableIns(field);
+    });
+
+    //表格赋值
+    function tableIns(obj) {
+      table.render({
+        elem: '#data-grid'
+        , url:"/project/projectquerylist"
+        ,parseData: function(res){
+          return {
+            "code": 0, //解析接口状态
+            "msg": "", //解析提示文本
+            "count": res.length, //解析数据长度
+            "data": res //解析数据列表
+          };
+        }
+        //, page: true //开启分页
+        , method: 'post'
+        , height: 'full-200'
+        , contentType:'application/json;charset=UTF-8'
+        ,xhrFields: {
+          withCredentials: true
+        }
+        ,crossDomain: true
+        ,toolbar: 'tableGridToolbar'
+        //,defaultToolbar: ['filter', 'print', 'exports']
+        //, where:{csName:$("#csName").val(),caeaId:$("#caeaId").val()}
+        , where: obj
+        //, limit: 10 //一页的个数
+        , even: true //开启隔行背景
+        , cols: [
+          [ //表头，与thymeleaf冲突
+            {type: 'numbers', title: '序号',align: 'center'},
+            {field: 'id', title: 'id', hide: true,align: 'center'},
+            {field: 'projectname', title: '项目名称',align: 'center'},
+            {field: 'partya', title: '甲方',align: 'center'},
+            {field: 'posttime', title: '截止日期',align: 'center'},
+            {field: 'requiresum', title: '项目金额',align: 'center'},
+            {field: 'requirecomplete', title: '需求完成度',align: 'center'},
+            {field: 'operate', title: '操作', fixed: 'right',templet: '#table-content-list',align: 'center',width:250}
+          ]
+        ],
+        done: function () {
+          layer.closeAll('loading');
+        }
+      });
+    }
+
+
+    //监听工具条
+    table.on('tool(table1)', function(obj){
+      var data = obj.data;
+      var id = data.id;
+      //console.log(data);
+      if(obj.event === 'show'){
+        // alert("show"+id);
+        layer.open({
+          type: 2
+          , title: '项目详情'
+          , content: '/views/project_view.html?id='+id
+          , maxmin: true
+          , area: ['90%', '90%']
+          , btn: ['确定', '取消']
+          , yes: function (index, layero) {
+            //点击确认触发 iframe 内容中的按钮提交
+            var submit = layero.find('iframe').contents().find("#layuiadmin-app-form-submit");
+            submit.click();
+            //table.reload("data-grid");
+          }
+        });
+
+      }else if(obj.event === 'delete'){
+
+        layer.confirm('真的删除行么', function(index){
+
+          $.ajax({
+            url: "/staff/updatestaff3/"+id,
+            type: 'get',
+            cache: false,
+            contentType : 'application/json; charset=utf-8',
+            success: function (text) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert(jqXHR.responseText);
+            }
+          });
+
+          $.ajax({
+            url: '/user/updateuserbystaffid?state=3&staffid='+data.requireing,
+            contentType: "application/json;charset=UTF-8",
+            type: 'get',
+            success: function (data) {
+
+            },
+            error: function (response) {
+              layer.msg(response.message);
+            }
+          });
+
+          $.ajax({
+            url: "/project/delete/"+id,
+            type: 'get',
+            cache: false,
+            contentType : 'application/json; charset=utf-8',
+            success: function (text) {
+              layui.table.reload('data-grid');//重载表格
+              //parent.layui.table.reload('data-grid'); //重载表格
+              if(text==true){
+                table.reload('data-grid');
+                layer.msg('已删除');
+              }
+              layer.close(index);//再执行关闭
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert(jqXHR.responseText);
+            }
+          });
+
+        });
+
+
+
+      }else if(obj.event === 'recover'){
+        layer.confirm('确认恢复项目', function(index){
+          $.ajax({
+            url: '/project/recovery',
+            type: 'post',
+            data: id,
+            cache: false,
+            contentType : 'application/json; charset=utf-8',
+            success: function (data) {
+              console.log("执行结果:"+JSON.stringify(data));
+              layer.msg('恢复成功');
+              layer.close(index);//再执行关闭
+              layui.table.reload('data-grid');//重载表格
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert(jqXHR.responseText);
+            }
+          });
+        });
+      }
+
+    });
+
+  });
+</script>
+
+</body>
+</html>

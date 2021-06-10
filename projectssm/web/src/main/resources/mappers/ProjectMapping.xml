@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.projectssm.mapper.ProjectMapper">
+
+    <resultMap id="BaseResultMap" type="com.projectssm.model.Project">
+        <result column="id" jdbcType="VARCHAR" property="id" />
+        <result column="projectname" jdbcType="VARCHAR" property="projectname" />
+        <result column="partya" jdbcType="VARCHAR" property="partya" />
+        <result column="partyb" jdbcType="VARCHAR" property="partyb" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="progress" jdbcType="VARCHAR" property="progress" />
+        <result column="leader" jdbcType="VARCHAR" property="leader" />
+    </resultMap>
+
+
+
+    <select id="querylist" resultType="com.projectssm.model.Project">
+        select * from project WHERE projectname LIKE '%'
+        <if test="project.projectname != null and project.projectname != ''">
+            and projectname like concat('%',#{project.projectname},'%')
+        </if>
+        <if test="project.partya != null and project.partya != ''">
+            and partya like concat('%',#{project.partya},'%')
+        </if>
+        <if test="project.state != null and project.state != ''">
+            and state =#{project.state}
+        </if>
+
+    </select>
+
+    <select id="querylist2" resultType="com.projectssm.model.Project">
+        select * from project
+    </select>
+
+    <select id="querylist3" resultType="com.projectssm.model.Project">
+        select * from project where id=#{projectid}
+    </select>
+
+    <select id="getProjectById" resultType="com.projectssm.model.Project">
+        select * from project WHERE id = #{id}
+    </select>
+
+    <insert id="add" parameterType="com.projectssm.model.Project">
+        INSERT INTO project  VALUES (#{project.id}, #{project.projectname}, #{project.partya}, "0", #{project.posttime}, #{project.endtime}, "", #{project.requiresum}, #{project.requirecomplete}, #{project.requireing})
+    </insert>
+
+    <delete id="delete" parameterType="java.util.Map">
+    	delete from project WHERE id = #{id}
+  	</delete>
+
+    <update id="update" parameterType="com.projectssm.model.Project">
+        UPDATE project
+            SET
+            project.projectname = #{project.projectname},
+                project.partya = #{project.partya},
+                project.posttime = #{project.posttime},
+                project.endtime = #{project.endtime},
+                project.stopreasion = #{project.stopreasion},
+                project.requiresum = #{project.requiresum},
+                project.requirecomplete = #{project.requirecomplete},
+                project.requireing = #{project.requireing}
+         WHERE project.id = #{project.id};
+    </update>
+    <!--完成项目-->
+    <update id="finish" parameterType="com.projectssm.model.Project">
+        UPDATE project
+            SET
+            project.state = '1',
+                project.stopreasion = #{project.stopreasion}
+         WHERE project.id = #{project.id};
+    </update>
+<!--中止项目-->
+    <update id="stop" parameterType="com.projectssm.model.Project">
+        UPDATE project
+            SET
+            project.state = '2',
+                project.stopreasion = #{project.stopreasion}
+         WHERE project.id = #{project.id};
+    </update>
+<!--恢复中止项目-->
+    <update id="recovery" parameterType="com.projectssm.model.Project">
+        UPDATE project
+            SET
+            project.state = '0',
+                project.stopreasion = null
+         WHERE project.id = #{id};
+    </update>
+
+    <select id="personnelproject" resultType="map">
+SELECT
+        (SELECT  COUNT(*) FROM project ) 所有,
+        (SELECT  COUNT(*) FROM project WHERE state='0') 进行中,
+        (SELECT  COUNT(*) FROM project WHERE state='1') 已完成,
+        (SELECT  COUNT(*) FROM project WHERE state='2') 已中止
+    </select>
+
+</mapper>

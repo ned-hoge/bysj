@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layuiAdmin 工单系统</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="../../layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+      <div class="layui-form-item">
+        <div class="layui-inline">
+          <label class="layui-form-label">文件名称</label>
+          <div class="layui-input-block">
+            <input type="text" id="name" name="name" placeholder="请输入" autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-input-inline" style="display: flex;width: 400px">
+          <label class="layui-form-label" >项目名称</label>
+          <div class="layui-input-inline" style_="width: 300px; ">
+            <select name="projectid" id="projectid" lay-filter="projectid" >
+            </select>
+          </div>
+        </div>
+        <div class="layui-inline">
+          <button class="layui-btn layuiadmin-btn-order" lay-submit lay-filter="LAY-app-order-search">
+            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+          </button>
+          <button class="layui-btn layuiadmin-btn-list"
+                  data-type="add" id="upload">
+            <i class="layui-icon layuiadmin-button-btn layui-icon-add-1"></i>新增
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="layui-card-body">
+      <table id="data-grid" class="layui-table" lay-filter="table1"></table>
+
+      <script type="text/html" id="tableGridToolbar">
+
+            </script>
+
+      <script type="text/html" id="table-content-list">
+        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="delete"><i
+                class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+
+  </div>
+</div>
+  <script src="../../common/js/jquery-3.3.1.min.js"></script>
+  <script src="../../layuiadmin/layui/layui.js"></script>
+  <script>
+  layui.config({
+    base: '../../layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'workorder', 'table','upload'], function(){
+    var $ = layui.$
+    ,form = layui.form
+    ,table = layui.table
+    ,upload=layui.upload;
+var projectid=null;
+var staffid=null;
+    var projectlist=new Object();
+    var stafflist=new Object();
+    var setSelectData = function ($, url, elemId, valueName, textName) {
+      //设置下拉数源  add by dingji
+      /**
+       *
+       * response=[{id：xx1,name:xx1},{id：xx2,name:xx2}];
+       * @param url
+       * @param elemId
+       */
+      // 请求
+      $.ajax({
+        type: 'post',
+        url: url,
+        cache: false,
+        async: false,
+        contentType: "application/json;charset=UTF-8",
+        success: function (response) {
+          var data = !!(response.data) ? response.data : response;
+          var t = "";
+          var key = elemId.substring(1);
+          SelReqData = {};
+          SelReqData[key] = data;
+          $(elemId).html("");
+          $(elemId).append("<option value= '' >请选择</option> ");
+          if (data != null) {
+            for (var i = 0; i < data.length; i++) {
+              //console.log(response[i].id);
+              //console.log(response[i].name);
+              $(elemId).append("<option value= '" + data[i][valueName] + "' >" + data[i][textName] + "</option> ");
+            }
+            //form.render('select');
+          }
+        }
+      });
+    };
+
+    setSelectData($, "/project/projectquerylist2", "#projectid", "id", "projectname");
+    form.render();
+
+    $.ajax({
+      url: "/project/projectquerylist3",
+      type: 'post',
+      cache: false,
+      async: false,
+      contentType: 'application/json; charset=utf-8',
+      success: function (text) {
+        console.log(JSON.stringify(text.data));
+        $.each(text.data, function (index, item) {
+          projectlist[item.id] = item.projectname;
+        });
+        layui.form.render("select");
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        alert("==" + jqXHR.responseText);
+      }
+    });
+
+    $.ajax({
+      url: "/staff/staffquerylist2",
+      type: 'post',
+      cache: false,
+      async: false,
+      contentType: 'application/json; charset=utf-8',
+      success: function (text) {
+        console.log(JSON.stringify(text.data));
+        $.each(text.data, function (index, item) {
+          stafflist[item.id] = item.name;
+        });
+        layui.form.render("select");
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        alert("==" + jqXHR.responseText);
+      }
+    });
+
+
+    $.ajax({
+      url: '/user/index',
+      contentType: "application/json;charset=UTF-8",
+      type: 'get',
+      async :false,
+      success: function (data) {
+
+        $.ajax({
+          url: "/user/getstaffidbyuser/"+data,
+          type: 'get',
+          async :false,
+          cache: false,
+          contentType : 'application/json; charset=utf-8',
+          success: function (text) {
+            staffid=text;
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            alert(jqXHR.responseText);
+          }
+        });
+
+      },
+      error: function (response) {
+        layer.msg(response.message);
+      }
+    });
+
+
+    //项目名称下拉框监听
+    form.on('select(projectid)', function (data) {
+      var projectid2 = data.elem[data.elem.selectedIndex].value;
+      // console.log("projectid:"+projectid);
+      if(projectid2){
+
+        projectid=projectid2;
+
+        upload.render({
+          elem: '#upload'
+          ,url: "../file/uploadFile?projectid="+projectid+"&staffid="+staffid //改成您自己的上传接口
+          ,accept: 'file' //普通文件
+          ,done: function(res){
+            layer.msg('上传成功');
+            fdfName=res.name;
+            fdfUrl=res.url;;
+            console.log(res);
+          }
+        });
+
+      }
+
+    });
+
+
+
+    tableIns({id:""});
+
+    //监听搜索
+    form.on('submit(LAY-app-order-search)', function(data){
+      var field = data.field;
+      console.log(field);
+      tableIns(field);
+      // //执行重载
+      // table.reload('data-grid', {
+      //   where: {
+      //     key: {
+      //       projectname: $("projectname").val()
+      //     }
+      //   }
+      // });
+    });
+
+    $('.layui-btn.layuiadmin-btn-list').on('click', function () {
+      var type = $(this).data('type');
+      active[type] ? active[type].call(this) : '';
+    });
+
+    var active = {
+      search: function () {
+        // form.on('select(cpMemberCompany)',function(data){
+        //     const aa = data.value;
+        //     const year = data.elem[data.elem.selectedIndex].text;
+        //     form.render('select');
+        // });
+        // tableIns({
+        //   csName: $("#csName").val(),
+        //   caeaId: $("#caeaId").val()
+        // });
+      },
+      // reset: function () {
+      //   form.val("layuiadmin-app-form-list", {
+      //     "csName": "",
+      //     "caeaId": ""
+      //   });
+      //   tableIns({
+      //     csName: $("#csName").val(),
+      //     caeaId: $("#caeaId").val()
+      //   });
+      // },
+      add: function () {                                                                         //项目新增方法
+
+      }
+    };
+
+    //表格赋值
+    function tableIns(obj) {
+      table.render({
+        elem: '#data-grid'
+        , url:"/filerecord/FILE_RECORDSquerylist"
+        ,parseData: function(res){
+          return {
+            "code": 0, //解析接口状态
+            "msg": "", //解析提示文本
+            "count": res.length, //解析数据长度
+            "data": res //解析数据列表
+          };
+        }
+        //, page: true //开启分页
+        , method: 'post'
+        , height: 'full-200'
+        , contentType:'application/json;charset=UTF-8'
+        ,xhrFields: {
+          withCredentials: true
+        }
+        ,crossDomain: true
+        ,toolbar: 'tableGridToolbar'
+        //,defaultToolbar: ['filter', 'print', 'exports']
+        //, where:{csName:$("#csName").val(),caeaId:$("#caeaId").val()}
+        , where: obj
+        //, limit: 10 //一页的个数
+        , even: true //开启隔行背景
+        , cols: [
+          [ //表头，与thymeleaf冲突
+            {type: 'numbers', title: '序号',align: 'center'},
+            {field: 'filename', title: '文档名称', align: 'center', templet: function (d) {
+              console.log(JSON.stringify(d));
+                if(d.filename) {
+                  return "<a target=\"view_window\" href='"+d.pdfurl+"'>"+d.filename+"</a>";
+                }else{
+                  return " ";
+                }
+              }},
+            {field: 'projectid', title: '项目名称',align: 'center', templet: function (d) {
+                return projectlist[d.projectid] || '';
+              }},
+            {field: 'uploaddate', title: '上传日期',align: 'center'},
+            {field: 'staffid', title: '上传者',align: 'center', templet: function (d) {
+                return stafflist[d.staffid] || '';
+              }},
+            {field: 'download', title: '下载', align: 'center', templet: function (d) {
+                console.log(JSON.stringify(d));
+                if(d.filename) {
+                  return "<a target=\"view_window\" href='"+d.wordurl+"'>"+"下载"+"</a>";
+                }else{
+                  return " ";
+                }
+              }},
+            {field: 'operate', title: '操作', templet: '#table-content-list',align: 'center',width:250}
+          ]
+        ],
+        done: function () {
+          layer.closeAll('loading');
+        }
+      });
+    }
+
+
+    //监听工具条
+    table.on('tool(table1)', function(obj){
+      var data = obj.data;
+      var id = data.id;
+      //console.log(data);
+      if(obj.event === 'delete'){
+
+        layer.confirm('真的删除行么', function(index){
+          $.ajax({
+            url: "/filerecord/delete/"+id,
+            type: 'get',
+            cache: false,
+            contentType : 'application/json; charset=utf-8',
+            success: function (text) {
+              layui.table.reload('data-grid');//重载表格
+              //parent.layui.table.reload('data-grid'); //重载表格
+              if(text==true){
+                table.reload('data-grid');
+                layer.msg('已删除');
+              }
+              layer.close(index);//再执行关闭
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert(jqXHR.responseText);
+            }
+          });
+
+        });
+
+      }
+
+    });
+
+  });
+  </script>
+
+</body>
+</html>

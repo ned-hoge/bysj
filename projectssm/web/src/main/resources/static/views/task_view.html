@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>员工页</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="../../layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+
+<div class="layui-form" lay-filter="dept-form" id="dept-form" style="padding: 20px;">
+
+  <div class="layui-form-item" style="display: none">
+    <label class="layui-form-label">员工ID</label>
+    <div class="layui-input-inline">
+      <input type="text" name="id" id="id"  queryTable="lesys_post_list"  style="width: 400px; " placeholder="请输入员工ID"
+             autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item layui-form-pane">
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label" >项目名称</label>
+      <div class="layui-input-inline" style_="width: 300px; ">
+        <select name="projectid" id="projectid" lay-filter="projectid" >
+        </select>
+      </div>
+    </div>
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label">项目成员</label>
+      <div class="layui-input-inline" style_="width: 300px; ">
+        <select name="staffid" id="staffid" lay-filter="staffid" >
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="layui-form-pane layui-form-item">
+    <label class="layui-form-label">任务日期</label>
+    <div class="layui-input-inline">
+      <input type="text" class="layui-input" name="date" id="date" placeholder="yyyy-MM-dd">
+    </div>
+  </div>
+
+  <div class="layui-form-item layui-form-pane">
+    <label class="layui-form-label">任务简介</label>
+    <textarea class="layui-input-inline layui-textarea" style="width: 600px;" name="remark" id="remark" placeholder="请输入项目简介" class="layui-textarea"></textarea>
+<!--    <input type="text" name="remark" id="remark"  style="width: 600px;" placeholder="请输入项目简介"-->
+<!--           autocomplete="off" class="layui-input" lay-verify="required">-->
+<!--  </div>-->
+  <div class="layui-form-item layui-hide">
+    <input type="button" lay-submit lay-filter="layuiadmin-app-form-submit" id="layuiadmin-app-form-submit"
+           value="确认添加">
+    <input type="button" lay-submit lay-filter="layuiadmin-app-form-edit" id="layuiadmin-app-form-edit"
+           value="确认编辑">
+  </div>
+</div>
+  <script src="../../common/js/jquery-3.3.1.min.js"></script>
+  <script src="../../layuiadmin/layui/layui.js"></script>
+  <script>
+  layui.config({
+    base: '../../layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'workorder', 'table','element'], function(){
+    var $ = layui.$
+    ,form = layui.form
+    ,table = layui.table;
+
+    var setSelectData = function ($, url, elemId, valueName, textName) {
+      //设置下拉数源  add by dingji
+      /**
+       *
+       * response=[{id：xx1,name:xx1},{id：xx2,name:xx2}];
+       * @param url
+       * @param elemId
+       */
+      // 请求
+      $.ajax({
+        type: 'post',
+        url: url,
+        cache: false,
+        async: false,
+        contentType: "application/json;charset=UTF-8",
+        success: function (response) {
+          var data = !!(response.data) ? response.data : response;
+          var t = "";
+          var key = elemId.substring(1);
+          SelReqData = {};
+          SelReqData[key] = data;
+          $(elemId).html("");
+          $(elemId).append("<option value= '' >请选择</option> ");
+          if (data != null) {
+            for (var i = 0; i < data.length; i++) {
+              //console.log(response[i].id);
+              //console.log(response[i].name);
+              $(elemId).append("<option value= '" + data[i][valueName] + "' >" + data[i][textName] + "</option> ");
+            }
+            //form.render('select');
+          }
+        }
+      });
+    };
+
+    var getParam = function (paramName) {
+      var reg = new RegExp("(^|&)" + paramName + "=([^&]*)(&|$)", "i");
+      var r = window.location.search.substr(1).match(reg);
+      if (r != null) {
+        return decodeURI(r[2]);
+      } else {
+        return null;
+      }
+    };
+
+    setSelectData($, "/project/projectquerylist2", "#projectid", "id", "projectname");
+    setSelectData($, "/staff/staffquerylist3", "#staffid", "id", "name");
+    form.render();
+
+
+    //项目名称下拉框监听
+    form.on('select(projectid)', function (data) {
+      var projectid = data.elem[data.elem.selectedIndex].value;
+      // console.log("projectid:"+projectid);
+      $("#staffid").empty();
+      if(projectid){
+        Inspection11(projectid);          //判断是否有选中项目
+      }
+
+    });
+
+    var id = getParam("id");
+
+    if(id!= null && id != ""){
+      selectById(id);
+    }
+
+    function selectById(id){
+
+      $.ajax({
+        url: "/task/get-by-id/"+id,
+        type: 'get',
+        cache: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+          if(response){                  //判断是否新增然后给弹窗赋值
+            form.val("dept-form",response);
+            if(response.projectid){
+              $("#iframeMain").attr("src", "/views/project_view.html?id="+response.projectid);
+            }
+            //document.getElementById("filename").setAttribute('value',response.data.fdfName);
+            //form.render();
+          }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          alert(jqXHR.responseText);
+        }
+      });
+
+    }
+
+    function Inspection11(date) {
+      $.ajax({
+        url: "/staff/querylistbyprojectid/"+date,
+        type: 'get',
+        cache: false,
+        async: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (text) {
+          console.log(JSON.stringify(text.data));
+          $.each(text.data, function (index, item) {
+            $('#staffid').append(new Option(item.name, item.id));// 下拉菜单里添加元素
+          });
+          form.render();
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          alert("==" + jqXHR.responseText);
+        }
+      });
+    }
+
+  });
+  </script>
+
+</body>
+</html>

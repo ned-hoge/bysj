@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>员工页</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="../../layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+
+<div class="layui-form" lay-filter="dept-form" id="dept-form" style="padding: 20px;">
+
+  <div class="layui-form-item" style="display: none">
+    <label class="layui-form-label">员工ID</label>
+    <div class="layui-input-inline">
+      <input type="text" name="id" id="id"  queryTable="lesys_post_list"  style="width: 400px; " placeholder="请输入员工ID"
+             autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item layui-form-pane">
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label" >姓名</label>
+      <input type="text" name="name" id="name" style="width: 300px;"  placeholder="请输入姓名"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label">身份证号</label>
+      <input type="text" name="idnumber" id="idnumber"  style="width: 300px;" placeholder="请输入身份证号"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+  </div>
+
+  <div class="layui-form-item layui-form-pane">
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label">职称情况</label>
+      <input type="text" name="title" id="title"  style="width: 300px;" placeholder="请输入资质或职称情况"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label">从业年限</label>
+      <input type="text" name="workex" id="workex"  style="width: 300px;" placeholder="请输入从业年限"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+  </div>
+
+
+  <div class="layui-form-item layui-form-pane">
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label">邮箱</label>
+      <input type="text" name="mailbox" id="mailbox"  style="width: 300px;" placeholder="请输入邮箱"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label">联系方式</label>
+      <input type="text" name="contact" id="contact"  style="width: 300px;" placeholder="请输入联系方式"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+  </div>
+
+  <div class="layui-form-item  layui-form-pane">
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label">职务</label>
+      <input type="text" name="post" id="post"  style="width: 300px;" placeholder="请输入职务"
+             autocomplete="off" class="layui-input" >
+    </div>
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label">联系电话</label>
+      <input type="text" name="telephone" id="telephone"  style="width: 300px;" placeholder="请输入联系电话"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+  </div>
+
+  <!--<div class="layui-form-item">
+      <div class="layui-input-inline" style="display: flex;width: 1000px">
+          <label class="layui-form-label">获得荣誉</label>
+          <input type="text" name="csHonorary" id="csHonorary"  style="width: 900px;" placeholder="请输入获得荣誉"
+                 autocomplete="off" class="layui-input" >
+      </div>
+  </div>
+  <div class="layui-form-item">
+      <div class="layui-input-inline" style="display: flex;width: 1000px">
+          <label class="layui-form-label">擅长专业</label>
+          <input type="text" name="csProfessional" id="csProfessional"  style="width: 900px;" placeholder="请输入擅长专业"
+                 autocomplete="off" class="layui-input" >
+      </div>
+  </div>
+  <div class="layui-form-item">
+      <div class="layui-input-inline" style="display: flex;width: 1000px">
+          <label class="layui-form-label">备注</label>
+          <input type="text" name="csRemark" id="csRemark"  style="width: 900px;" placeholder="请输入备注"
+                 autocomplete="off" class="layui-input" >
+      </div>
+  </div>-->
+  <div class="layui-form-item layui-form-pane">
+    <label class="layui-form-label">擅长专业</label>
+    <input type="text" name="major" id="major"  style="width: 700px;" placeholder="请输入擅长专业"
+           autocomplete="off" class="layui-input" lay-verify="required">
+  </div>
+  <div class="layui-form-item layui-form-pane">
+    <label class="layui-form-label">备注</label>
+    <input type="text" name="remark" id="remark"  style="width: 700px;" placeholder="请输入备注"
+           autocomplete="off" class="layui-input" lay-verify="required">
+  </div>
+
+
+
+  <div class="layui-form-item layui-hide">
+    <input type="button" lay-submit lay-filter="layuiadmin-app-form-submit" id="layuiadmin-app-form-submit"
+           value="确认添加">
+    <input type="button" lay-submit lay-filter="layuiadmin-app-form-edit" id="layuiadmin-app-form-edit"
+           value="确认编辑">
+  </div>
+</div>
+  <script src="../../common/js/jquery-3.3.1.min.js"></script>
+  <script src="../../layuiadmin/layui/layui.js"></script>
+  <script>
+  layui.config({
+    base: '../../layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'workorder', 'table'], function(){
+    var $ = layui.$
+    ,form = layui.form
+    ,table = layui.table;
+
+    var getParam = function (paramName) {
+      var reg = new RegExp("(^|&)" + paramName + "=([^&]*)(&|$)", "i");
+      var r = window.location.search.substr(1).match(reg);
+      if (r != null) {
+        return decodeURI(r[2]);
+      } else {
+        return null;
+      }
+    };
+
+    var id = getParam("id");
+
+    if(id!= null && id != ""){
+      selectById(id);
+    }
+
+    //监听提交
+    form.on('submit(layuiadmin-app-form-submit)', function (data) {
+      var field = data.field; //获取提交的字段
+      var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+      var jsonData = JSON.stringify(field);
+        console.log(jsonData);
+      if (id == "" || id == null) {
+        //提交 Ajax 成功后，关闭当前弹层并重载表格
+        $.ajax({
+          url: "/staff/saveSpecia",
+          type: 'post',
+          data: jsonData,
+          cache: false,
+          contentType: 'application/json; charset=utf-8',
+          success: function (text) {
+            console.log(text);
+            if (text == '新增成功') {
+              parent.layer.close(index); //再执行关闭
+            } else {
+              layer.alert("保存失败了！");
+            }
+            parent.layui.table.reload('data-grid'); //重载表格
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+
+            alert("==" + jqXHR.responseText);
+          }
+        });
+      } else {
+        //提交 Ajax 成功后，关闭当前弹层并重载表格
+        $.ajax({
+          url: "/staff/update",
+          type: 'post',
+          data: jsonData,
+          cache: false,
+          contentType: 'application/json; charset=utf-8',
+          success: function (text) {
+            console.log("=========================3" + text);
+            if (text == "更新成功") {
+              parent.layer.close(index); //再执行关闭
+            } else {
+              layer.alert("更新失败了！");
+            }
+            parent.layui.table.reload('data-grid'); //重载表格
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            alert("==" + jqXHR.responseText);
+          }
+        });
+
+      }
+
+    });
+
+    function selectById(id){
+      $.ajax({
+        url: "/staff/get-by-id/"+id,
+        type: 'get',
+        cache: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+          //console.log(response);
+          if(response){                  //判断是否新增然后给弹窗赋值
+            form.val("dept-form", response);
+            // form.val("dept-form",{
+            //   "id":response.id,
+            //   "name":response.name,
+            //   "idnumber":response.idnumber,
+            //   "title":response.title,
+            //   "workex":response.workex,
+            //   "contact":response.contact,
+            //   "remark":response.remark,
+            //   "mailbox":'*'+response.mailbox,
+            //   "major":response.major,
+            //   "post":response.post,
+            //   "telephone":response.telephone,
+            //
+            // });
+            //document.getElementById("filename").setAttribute('value',response.data.fdfName);
+            //form.render();
+          }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          alert(jqXHR.responseText);
+        }
+      });
+
+    }
+  
+  });
+  </script>
+
+</body>
+</html>

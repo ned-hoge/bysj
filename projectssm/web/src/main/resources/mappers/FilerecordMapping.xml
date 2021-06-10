@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.projectssm.mapper.FilerecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.projectssm.model.FileRecord">
+    </resultMap>
+
+
+
+    <select id="FILE_RECORDSquerylist" resultType="com.projectssm.model.FileRecord">
+        select * from filerecord WHERE id LIKE '%'
+        <if test="fileRecord.filename != null and fileRecord.filename != ''">
+            and filename like  concat('%',#{fileRecord.filename},'%')
+        </if>
+        <if test="fileRecord.projectid != null and fileRecord.projectid != ''">
+            and projectid =#{fileRecord.projectid}
+        </if>
+    </select>
+
+
+    <select id="getfilerecordById" resultType="com.projectssm.model.FileRecord">
+        select * from filerecord WHERE id = #{id}
+    </select>
+
+    <insert id="add" parameterType="com.projectssm.model.FileRecord">
+        INSERT INTO filerecord  VALUES (REPLACE(UUID(),"-",""), #{fileRecord.filename}, #{fileRecord.wordurl}, #{fileRecord.pdfurl}, #{fileRecord.projectid},#{fileRecord.staffid},#{fileRecord.uploaddate})
+    </insert>
+
+    <delete id="delete" parameterType="java.util.Map">
+    	delete from filerecord WHERE id = #{id}
+  	</delete>
+
+</mapper>

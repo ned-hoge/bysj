@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layuiAdmin 工单系统</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="../../layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+      <div class="layui-form-item">
+        <label class="layui-form-label"
+               style="padding:9px 0;text-align: left;width: 60px;">筛选：</label>
+        <div class="layui-btn-group demoTest" style="padding-left: 0;padding-right: 20px">
+          <button type="button" class="btns layui-btn layui-btn-primary" style="color: #C30001;"
+                  data-type="set" data-key="anim" data-value="default" onclick="onQuerysy()" >所有<span
+                  id="its1" class="font-red">()</span></button>
+          <button type="button" class="btns layui-btn layui-btn-primary" data-type="set"
+                  data-key="anim" data-value="updown" onclick="onQueryywc()">已完成<span id="its2"
+                                                                                      class="font-red">()</span>
+          </button>
+          <button type="button" class="btns layui-btn layui-btn-primary" data-type="set"
+                  data-key="anim" data-value="fade" onclick="onQuerydzx()">待执行<span id="its3"
+                                                                                    class="font-red">()</span>
+          </button>
+          <button type="button" class="btns layui-btn layui-btn-primary" data-type="set"
+                  data-key="anim" data-value="fade" onclick="onQueryyq()">逾期<span id="its4"
+                                                                                        class="font-red">()</span>
+          </button>
+        </div>
+          <div class="layui-inline"  id="test">
+              <button class="layui-btn layuiadmin-btn-list"
+                      data-type="add">
+                  <i class="layui-icon layuiadmin-button-btn layui-icon-add-1"></i>新增
+              </button>
+          </div>
+      </div>
+
+
+    </div>
+
+    <div class="layui-card-body">
+      <table id="data-grid" class="layui-table" lay-filter="table1"></table>
+
+      <script type="text/html" id="tableGridToolbar">
+
+            </script>
+
+      <script type="text/html" id="table-content-list">
+        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="show"><i
+                class="layui-icon layui-icon-read"></i>查看</a>
+<!--        <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="ok"><i-->
+<!--                class="layui-icon layui-icon-ok"></i>完成</a>-->
+        {{#  if(d.state == "1"){ }}
+                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="ok"><i
+                        class="layui-icon layui-icon-ok"></i>完成</a>
+        {{#  } else if( d.state == "3" ){}}
+                <a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="ok2"><i
+                        class="layui-icon layui-icon-ok"></i>逾期完成</a>
+        {{#  } }}
+      </script>
+    </div>
+
+  </div>
+</div>
+  <script src="../../common/js/jquery-3.3.1.min.js"></script>
+  <script src="../../layuiadmin/layui/layui.js"></script>
+  <script>
+      var projectlist=new Object();
+      var stafflist=new Object();
+  layui.config({
+    base: '../../layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'workorder', 'table'], function(){
+    var $ = layui.$
+    ,form = layui.form
+    ,table = layui.table;
+    var staffid=null;
+var realName=null;
+var projectid=null;
+      $.ajax({
+          url: '/user/index',
+          contentType: "application/json;charset=UTF-8",
+          type: 'get',
+          async :false,
+          success: function (data) {
+
+              $.ajax({
+                  url: "/user/getrealNamebyuser/"+data,
+                  type: 'get',
+                  async :false,
+                  cache: false,
+                  contentType : 'application/json; charset=utf-8',
+                  success: function (text) {
+                      console.log("realName:"+text);
+                      realName=text;
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      alert(jqXHR.responseText);
+                  }
+              });
+
+              $.ajax({
+                  url: "/user/getstaffidbyuser/"+data,
+                  type: 'get',
+                  async :false,
+                  cache: false,
+                  contentType : 'application/json; charset=utf-8',
+                  success: function (text) {
+                      staffid=text;
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      alert(jqXHR.responseText);
+                  }
+              });
+
+              $.ajax({
+                  url: "/user/getprojectidbystaffid/"+staffid,
+                  type: 'get',
+                  async :false,
+                  cache: false,
+                  contentType : 'application/json; charset=utf-8',
+                  success: function (text) {
+                      // console.log("projectid:"+text);
+                          projectid=text;
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      alert(jqXHR.responseText);
+                  }
+              });
+
+          },
+          error: function (response) {
+              layer.msg(response.message);
+          }
+      });
+
+
+
+
+      $.ajax({
+          url: "/project/projectquerylist3",
+          type: 'post',
+          cache: false,
+          async: false,
+          contentType: 'application/json; charset=utf-8',
+          success: function (text) {
+              console.log(JSON.stringify(text.data));
+              $.each(text.data, function (index, item) {
+                  projectlist[item.id] = item.projectname;
+              });
+              layui.form.render("select");
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+              alert("==" + jqXHR.responseText);
+          }
+      });
+
+      $.ajax({
+          url: "/staff/staffquerylist2",
+          type: 'post',
+          cache: false,
+          async: false,
+          contentType: 'application/json; charset=utf-8',
+          success: function (text) {
+              console.log(JSON.stringify(text.data));
+              $.each(text.data, function (index, item) {
+                  stafflist[item.id] = item.name;
+              });
+              layui.form.render("select");
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+              alert("==" + jqXHR.responseText);
+          }
+      });
+
+    $.ajax({
+      url: '/user/index',
+      contentType: "application/json;charset=UTF-8",
+      type: 'get',
+      async :false,
+      success: function (data) {
+          $.ajax({
+              url: "/user/getstaffidbyuser/"+data,
+              type: 'get',
+              cache: false,
+              async :false,
+              contentType : 'application/json; charset=utf-8',
+              success: function (text) {
+                  staffid=text;
+                  selectcountlist({id:"",projectid:"",staffid:staffid});
+                  if(realName=="2"){
+                      document.getElementById("test").className="layui-hide";
+                      tableIns({id:"",projectid:"",staffid:staffid});
+                  }else{
+                      tableIns({id:"",projectid:projectid,staffid:""})
+                  }
+
+
+                  console.log("staffid:"+staffid);
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  alert(jqXHR.responseText);
+              }          });
+
+      },
+      error: function (response) {
+        layer.msg(response.message);
+      }
+    });
+
+    window.onQuerysy = function () {
+      tableIns({id:"",projectid:"",staffid:staffid});
+    }
+    window.onQueryywc = function () {
+      tableIns({
+        id:"",
+        projectid:"",
+        staffid:staffid,
+        state: "2"
+      });
+    }
+    window.onQuerydzx = function () {
+      tableIns({
+        id:"",
+        projectid:"",
+        staffid: staffid,
+        state: "1"
+      });
+    }
+
+    window.onQueryyq = function () {
+      tableIns({
+        id:"",
+        projectid:"",
+        staffid: staffid,
+        state: "3"
+      });
+    }
+
+      $('.layui-btn.layuiadmin-btn-list').on('click', function () {
+          var type = $(this).data('type');
+          active[type] ? active[type].call(this) : '';
+      });
+
+      var active = {
+          search: function () {
+              // form.on('select(cpMemberCompany)',function(data){
+              //     const aa = data.value;
+              //     const year = data.elem[data.elem.selectedIndex].text;
+              //     form.render('select');
+              // });
+              // tableIns({
+              //   csName: $("#csName").val(),
+              //   caeaId: $("#caeaId").val()
+              // });
+          },
+          // reset: function () {
+          //   form.val("layuiadmin-app-form-list", {
+          //     "csName": "",
+          //     "caeaId": ""
+          //   });
+          //   tableIns({
+          //     csName: $("#csName").val(),
+          //     caeaId: $("#caeaId").val()
+          //   });
+          // },
+          add: function () {                                                                         //项目新增方法
+              var id = "";
+              layer.open({
+                  type: 2
+                  ,
+                  title: '新增任务'
+                  ,
+                  content: '/views/personneltask_edit.html?id='+id
+                  ,
+                  maxmin: true
+                  ,
+                  area: ['900px', '300px']
+                  ,
+                  btn: ['确定', '取消']
+                  ,
+                  id: 'LAY_layuipro'
+                  ,
+                  yes: function (index, layero) {
+                      //点击确认触发 iframe 内容中的按钮提交
+                      var submit = layero.find('iframe').contents().find("#layuiadmin-app-form-submit");
+                      submit.click();
+                      table.reload("data-grid");
+                  }
+              });
+          }
+      };
+
+
+    $('.layui-btn.layuiadmin-btn-list').on('click', function () {
+      var type = $(this).data('type');
+      active[type] ? active[type].call(this) : '';
+    });
+
+      function selectcountlist(data) {
+          $.ajax({
+              url: "/task/selectcountlist",
+              type: 'post',
+              data: JSON.stringify(data),
+              cache: false,
+              async: false,
+              contentType: 'application/json; charset=utf-8',
+              success: function (res) {
+                  $('#its1').html("(" + res.全部 + ")");
+                  $('#its2').html("(" + res.已完成 + ")");
+                  $('#its3').html("(" + res.待执行 + ")");
+                  $('#its4').html("(" + res.逾期 + ")");
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  // alert("==" + jqXHR.responseText);
+              }
+          });
+      }
+      function updatestaffstate(data) {
+          $.ajax({
+              url: "/task/update2/" + data,
+              type: 'get',
+              cache: false,
+              async: false,
+              contentType: 'application/json; charset=utf-8',
+              success: function (res) {
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  // alert("==" + jqXHR.responseText);
+              }
+          });
+      }
+    //表格赋值
+    function tableIns(obj) {
+        var d = new Date();
+        var str = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();//获取当前年月日
+        updatestaffstate(str);//更新所有任务的状态
+
+      table.render({
+        elem: '#data-grid'
+        , url:"/task/taskquerylist"
+        ,parseData: function(res){
+          return {
+            "code": 0, //解析接口状态
+            "msg": "", //解析提示文本
+            "count": res.length, //解析数据长度
+            "data": res //解析数据列表
+          };
+        }
+        //, page: true //开启分页
+        , method: 'post'
+        , height: 'full-200'
+        , contentType:'application/json;charset=UTF-8'
+        ,xhrFields: {
+          withCredentials: true
+        }
+        ,crossDomain: true
+        ,toolbar: 'tableGridToolbar'
+        //,defaultToolbar: ['filter', 'print', 'exports']
+        //, where:{csName:$("#csName").val(),caeaId:$("#caeaId").val()}
+        , where: obj
+        //, limit: 10 //一页的个数
+        , even: true //开启隔行背景
+        , cols: [
+                  [ //表头，与thymeleaf冲突
+                      {type: 'numbers', title: '序号',align: 'center'},
+                      {field: 'projectid', title: '项目名称',align: 'center', templet: function (d) {
+                              return projectlist[d.projectid] || '';
+                          }},
+                      // {field: 'staffid', title: '员工名称',align: 'center', templet: function (d) {
+                      //         return stafflist[d.staffid] || '';
+                      //     }},
+                      {field: 'date', title: '任务日期',align: 'center'},
+                      {field: 'remark', title: '任务说明',align: 'center'},
+                      {
+                          field: 'state', title: '任务状态', align: 'center',sort:true, templet: function (d) {
+                              if (d.state=="1") {
+                                  return '<span style="color: #FF8F02">未完成</span>';
+                              } else if (d.state == "2") {
+                                  return '<span style="color: #4CB869">已完成</span>';
+                              } else if (d.state == "3") {
+                                  return '<span style="color: #4CB869">逾期</span>';;
+                              } else if (d.state == "4") {
+                                  return '<span style="color: #4CB869">逾期完成</span>';;
+                              }
+                          }
+                      },
+                      {field: 'operate', title: '操作', templet: '#table-content-list',align: 'center',width:250}
+                  ]
+              ],
+        done: function () {
+          layer.closeAll('loading');
+        }
+      });
+    }
+
+
+    //监听工具条
+    table.on('tool(table1)', function(obj){
+      var data = obj.data;
+      var id = data.id;
+      //console.log(data);
+      if(obj.event === 'show'){
+        layer.open({
+          type: 2
+          , title: '员工详情'
+          , content: '/views/task_view.html?id='+id
+          , maxmin: true
+          , area: ['900px', '300px']
+          , btn: ['确定', '取消']
+          , yes: function (index, layero) {
+            //点击确认触发 iframe 内容中的按钮提交
+            var submit = layero.find('iframe').contents().find("#layuiadmin-app-form-submit");
+            submit.click();
+            //table.reload("data-grid");
+          }
+        });
+        // alert("show"+id);
+      }else if(obj.event === 'ok'){
+
+        layer.confirm('真的完成了么', function(index){
+          $.ajax({
+            url: "/task/finish/"+staffid,
+            type: 'get',
+            cache: false,
+            contentType : 'application/json; charset=utf-8',
+            success: function (text) {
+              layui.table.reload('data-grid');//重载表格
+              //parent.layui.table.reload('data-grid'); //重载表格
+              if(text==true){
+                table.reload('data-grid');
+                layer.msg('已完成');
+              }
+              layer.close(index);//再执行关闭
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert(jqXHR.responseText);
+            }
+          });
+
+        });
+
+      }else if(obj.event === 'ok2'){
+
+          layer.confirm('真的完成了么', function(index){
+              $.ajax({
+                  url: "/task/finish2/"+staffid,
+                  type: 'get',
+                  cache: false,
+                  contentType : 'application/json; charset=utf-8',
+                  success: function (text) {
+                      layui.table.reload('data-grid');//重载表格
+                      //parent.layui.table.reload('data-grid'); //重载表格
+                      if(text==true){
+                          table.reload('data-grid');
+                          layer.msg('已完成');
+                      }
+                      layer.close(index);//再执行关闭
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      alert(jqXHR.responseText);
+                  }
+              });
+
+          });
+
+      }
+
+    });
+
+  });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>项目讨论组</title>
+</head>
+<body>
+<label>房间名</label>
+<input id="input_roomName" Readonly=“true” value="12" size="10" maxlength="10">
+<input type="button"  value="进入聊天室" onclick="initWebSocket()" />
+<input type="button" value="退出聊天室" onclick="closeWs()" /><br>
+<div class="msg_board"></div>
+<input id="input_msg" size="43" maxlength="40">
+<input type="button" value="发送" onclick="send_msg()" />
+</body>
+<script src="../../common/js/jquery-3.3.1.min.js"></script>
+<script src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript">
+    var webSocket;
+    var projectid=null;
+    var staffid=null;
+    var stafflist=new Object();
+    var staffname=null;
+    layui.config({
+        base: 'layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form', 'laydate','upload'], function(){
+        var $ = layui.$, form = layui.form, laydate = layui.laydate, upload=layui.upload;
+
+        $.ajax({
+            url: '/user/index',
+            contentType: "application/json;charset=UTF-8",
+            type: 'get',
+            async :false,
+            success: function (data) {
+
+                $.ajax({
+                    url: "/user/getstaffidbyuser/"+data,
+                    type: 'get',
+                    async :false,
+                    cache: false,
+                    contentType : 'application/json; charset=utf-8',
+                    success: function (text) {
+                        staffid=text;
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+
+                $.ajax({
+                    url: "/user/getprojectidbystaffid/"+staffid,
+                    type: 'get',
+                    async :false,
+                    cache: false,
+                    contentType : 'application/json; charset=utf-8',
+                    success: function (text) {
+                        console.log("projectid:"+text);
+                        if (text){
+                            projectid=text;
+                        }else{
+                            projectid="0";
+                        }
+
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+
+            },
+            error: function (response) {
+                layer.msg(response.message);
+            }
+        });
+
+        $.ajax({
+            url: "/staff/staffquerylist2",
+            type: 'post',
+            cache: false,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (text) {
+                console.log(JSON.stringify(text.data));
+                $.each(text.data, function (index, item) {
+                    stafflist[item.id] = item.name;
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("==" + jqXHR.responseText);
+            }
+        });
+        console.log(stafflist[staffid]);
+        staffname=stafflist[staffid];
+        document.getElementById("input_roomName").value=projectid;
+
+    });
+
+
+
+    function send_msg() {
+        if (webSocket != null) {
+            var input_msg = document.getElementById("input_msg").value.trim();
+            if (input_msg == "") {
+                return;
+            }
+            webSocket.send(input_msg);
+            // 清除input框里的信息
+            document.getElementById("input_msg").value = "";
+        } else {
+            layer.msg("您已掉线，请重新进入聊天室...");
+            // alert("您已掉线，请重新进入聊天室...");
+        }
+    };
+
+    function closeWs() {
+        webSocket.close();
+    };
+
+    function initWebSocket() {
+        var roomName = document.getElementById("input_roomName").value;
+        // 房间名不能为空
+        if (roomName == null || roomName == "") {
+            alert("请输入房间名");
+            return;
+        }
+        if ("WebSocket" in window) {
+//            alert("您的浏览器支持 WebSocket!");
+            if (webSocket == null) {
+                var url = "ws://localhost:8080/webSocket/chat/" + roomName+"/"+staffname;
+                // 打开一个 web socket
+                webSocket = new WebSocket(url);
+            } else {
+                layer.msg("您已进入聊天室...");
+                // alert("您已进入聊天室...");
+            }
+
+            webSocket.onopen = function () {
+                layer.msg("已进入聊天室，畅聊吧...");
+                // alert("已进入聊天室，畅聊吧...");
+            };
+
+            webSocket.onmessage = function (evt) {
+                var msg_board = document.getElementsByClassName("msg_board")[0];
+                var received_msg = evt.data;
+                var old_msg = msg_board.innerHTML;
+                msg_board.innerHTML = old_msg + received_msg + "<br>";
+                // 让滚动块往下移动
+                msg_board.scrollTop = msg_board.scrollTop + 40;
+            };
+
+            webSocket.onclose = function () {
+                // 关闭 websocket，清空信息板
+                layer.msg("连接已关闭...")
+                // alert("连接已关闭...");
+                webSocket = null;
+                document.getElementsByClassName("msg_board")[0].innerHTML = "";
+            };
+        }
+        else {
+            // 浏览器不支持 WebSocket
+            alert("您的浏览器不支持 WebSocket!");
+        }
+    }
+</script>
+</html>

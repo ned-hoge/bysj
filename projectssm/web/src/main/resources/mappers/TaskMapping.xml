@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.projectssm.mapper.TaskMapper">
+
+    <resultMap id="BaseResultMap" type="com.projectssm.model.Task">
+        <result column="id" jdbcType="VARCHAR" property="id" />
+        <result column="projectid" jdbcType="VARCHAR" property="projectid" />
+        <result column="staffid" jdbcType="VARCHAR" property="staffid" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="state" jdbcType="VARCHAR" property="state" />
+        <result column="date" property="date" />
+
+    </resultMap>
+
+
+
+    <select id="taskquerylist" resultType="com.projectssm.model.Task">
+        select * from task WHERE id LIKE '%'
+        <if test="task.projectid != null and task.projectid != ''">
+            and projectid =#{task.projectid}
+        </if>
+        <if test="task.staffid != null and task.staffid != ''">
+            and staffid =#{task.staffid}
+        </if>
+        <if test="task.state != null and task.state != ''">
+            and state =#{task.state}
+        </if>
+    </select>
+
+    <select id="taskquerylist2" resultType="com.projectssm.model.Task">
+        select * from task
+    </select>
+
+
+    <select id="getTaskById" resultType="com.projectssm.model.Task">
+        select * from task WHERE id = #{id}
+    </select>
+
+    <insert id="add" parameterType="com.projectssm.model.Task">
+        INSERT INTO task  VALUES (REPLACE(UUID(),"-",""), #{task.projectid}, #{task.staffid}, #{task.remark},'1', #{task.date})
+    </insert>
+
+    <delete id="delete" parameterType="java.util.Map">
+    	delete from task WHERE id = #{id}
+  	</delete>
+
+    <update id="finish" parameterType="java.util.Map">
+    	UPDATE task
+            SET task.state = "2"
+         WHERE task.staffid = #{id};
+  	</update>
+
+    <update id="finish2" parameterType="java.util.Map">
+    	UPDATE task
+            SET task.state = "4"
+         WHERE task.staffid = #{id};
+  	</update>
+
+    <update id="update" parameterType="com.projectssm.model.Task">
+        UPDATE task
+            SET task.projectid = #{task.projectid},
+                task.staffid = #{task.staffid},
+                task.remark = #{task.remark},
+                task.date = #{task.date}
+         WHERE task.id = #{task.id};
+    </update>
+<!--员工任务列表筛选按钮置值-->
+    <select id="selectcountlist" resultType="map">
+        SELECT
+        (SELECT  COUNT(*)  FROM task where staffid=#{task.staffid}) 全部,
+        (SELECT  COUNT(*)  FROM task WHERE state='1' and staffid=#{task.staffid}) 待执行,
+        (SELECT  COUNT(*)  FROM task WHERE state='2' and staffid=#{task.staffid}) 已完成,
+        (SELECT  COUNT(*)  FROM task WHERE state='3' and staffid=#{task.staffid}) 逾期
+    </select>
+<!--管理员主页置值-->
+    <select id="selectpersonnel" resultType="map">
+SELECT
+ 	(SELECT CONCAT(CONVERT((SELECT CAST((SELECT (SELECT COUNT(*) FROM task WHERE state="2" OR state="4")/(SELECT COUNT(*) FROM task)) AS DECIMAL(4,2)))*100,CHAR),'%')) 完成度,
+	(SELECT CONCAT(CONVERT((SELECT CAST((SELECT (SELECT COUNT(*) FROM task WHERE state="3")/(SELECT COUNT(*) FROM task)) AS DECIMAL(4,2)))*100,CHAR),'%')) 延期率,
+        (SELECT  COUNT(*) FROM task ) 总数,
+        (SELECT  COUNT(*) FROM task WHERE state='2') 已完成,
+        (SELECT  COUNT(*) FROM task WHERE state='1') 未完成,
+        (SELECT  COUNT(*) FROM task WHERE state='3') 逾期
+    </select>
+<!--图表中每天任务数据的获取-->
+    <select id="selecttaskbyday" resultType="map">
+SELECT
+    (SELECT  COUNT(*) FROM task WHERE  DATE=#{date}) 总任务,
+    (SELECT  COUNT(*) FROM task WHERE (state='3' or state='4') AND DATE=#{date}) 逾期或逾期完成,
+    (SELECT  COUNT(*) FROM task WHERE state='2' AND DATE=#{date}) 当天完成
+    </select>
+
+<!--员工主页中图表的每天任务数据获取-->
+    <select id="selecttaskbydayandstaffid" resultType="map">
+SELECT
+    (SELECT  COUNT(*) FROM task WHERE  DATE=#{date} AND staffid=#{staffid}) 总任务,
+    (SELECT  COUNT(*) FROM task WHERE (state='3' or state='4') AND DATE=#{date} AND staffid=#{staffid}) 逾期或逾期完成,
+    (SELECT  COUNT(*) FROM task WHERE state='2' AND DATE=#{date} AND staffid=#{staffid}) 当天完成,
+    (SELECT  COUNT(*) FROM task WHERE state='1' AND DATE=#{date} AND staffid=#{staffid}) 待完成,
+    (SELECT  COUNT(*) FROM task WHERE state='3' AND staffid=#{staffid}) 已逾期任务
+    </select>
+
+<!--    员工主页任务统计数据-->
+    <!--图表中每天任务数据的获取-->
+    <select id="selecttaskbydayandstaffid2" resultType="map">
+SELECT
+ 	(SELECT CONCAT(CONVERT((SELECT CAST((SELECT (SELECT COUNT(*) FROM task WHERE (state="2" OR state="4") AND staffid=#{staffid})/(SELECT COUNT(*) FROM task WHERE staffid=#{staffid})) AS DECIMAL(4,2)))*100,CHAR),'%')) 完成度,
+	(SELECT CONCAT(CONVERT((SELECT CAST((SELECT (SELECT COUNT(*) FROM task WHERE state="3" AND staffid=#{staffid})/(SELECT COUNT(*) FROM task WHERE staffid=#{staffid})) AS DECIMAL(4,2)))*100,CHAR),'%')) 延期率,
+        (SELECT  COUNT(*) FROM task WHERE staffid=#{staffid}) 总数,
+        (SELECT  COUNT(*) FROM task WHERE state='2' AND staffid=#{staffid}) 已完成,
+        (SELECT  COUNT(*) FROM task WHERE state='1' AND staffid=#{staffid}) 未完成,
+        (SELECT  COUNT(*) FROM task WHERE state='3' AND staffid=#{staffid}) 逾期
+    </select>
+<!--每次刷新任务列表就更新任务状态-->
+    <update id="update2" parameterType="java.lang.String">
+        UPDATE task SET state='3' WHERE DATE &lt; #{date,jdbcType=DATE} AND state='1'
+    </update>
+</mapper>

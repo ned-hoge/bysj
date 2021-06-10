@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+    <title>Spring Boot WebSocket Chat Application</title>
+    <style type="text/css">
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        html,body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-weight: 400;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.58;
+            color: #333;
+            background-color: #f4f4f4;
+            height: 100%;
+        }
+
+        body:before {
+            height: 50%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #128ff2;
+            content: "";
+            z-index: 0;
+        }
+
+        .clearfix:after {
+            display: block;
+            content: "";
+            clear: both;
+        }
+
+
+        .form-control {
+            width: 100%;
+            min-height: 38px;
+            font-size: 15px;
+            border: 1px solid #c8c8c8;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input {
+            padding-left: 10px;
+            outline: none;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.7em;
+        }
+
+        a {
+            color: #128ff2;
+        }
+
+        button {
+            box-shadow: none;
+            border: 1px solid transparent;
+            font-size: 14px;
+            outline: none;
+            line-height: 100%;
+            white-space: nowrap;
+            vertical-align: middle;
+            padding: 0.6rem 1rem;
+            border-radius: 2px;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            min-height: 38px;
+        }
+
+        button.default {
+            background-color: #e8e8e8;
+            color: #333;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+        }
+
+        button.primary {
+            background-color: #128ff2;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+            color: #fff;
+        }
+
+        button.accent {
+            background-color: #ff4743;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+            color: #fff;
+        }
+
+        #username-page {
+            text-align: center;
+        }
+
+        .username-page-container {
+            background: #fff;
+            box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+            border-radius: 2px;
+            width: 100%;
+            max-width: 500px;
+            display: inline-block;
+            margin-top: 42px;
+            vertical-align: middle;
+            position: relative;
+            padding: 35px 55px 35px;
+            min-height: 250px;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            margin-top: -160px;
+        }
+
+        .username-page-container .username-submit {
+            margin-top: 10px;
+        }
+
+
+        #chat-page {
+            position: relative;
+            height: 100%;
+        }
+
+        .chat-container {
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #fff;
+            box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+            margin-top: 30px;
+            height: calc(100% - 60px);
+            max-height: 600px;
+            position: relative;
+        }
+
+        #chat-page ul {
+            list-style-type: none;
+            background-color: #FFF;
+            margin: 0;
+            overflow: auto;
+            overflow-y: scroll;
+            padding: 0 20px 0px 20px;
+            height: calc(100% - 180px);
+        }
+
+        #chat-page #messageForm {
+            padding: 20px;
+        }
+
+        #chat-page ul li {
+            line-height: 1.5rem;
+            padding: 10px 20px;
+            margin: 0;
+            border-bottom: 1px solid #f4f4f4;
+        }
+
+        #chat-page ul li p {
+            margin: 0;
+        }
+
+        #chat-page .event-message {
+            width: 100%;
+            text-align: center;
+            clear: both;
+        }
+
+        #chat-page .event-message p {
+            color: #777;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        #chat-page .chat-message {
+            padding-left: 68px;
+            position: relative;
+        }
+
+        #chat-page .chat-message i {
+            position: absolute;
+            width: 42px;
+            height: 42px;
+            overflow: hidden;
+            left: 10px;
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 18px;
+            line-height: 42px;
+            color: #fff;
+            text-align: center;
+            border-radius: 50%;
+            font-style: normal;
+            text-transform: uppercase;
+        }
+
+        #chat-page .chat-message span {
+            color: #333;
+            font-weight: 600;
+        }
+
+        #chat-page .chat-message p {
+            color: #43464b;
+        }
+
+        #messageForm .input-group input {
+            float: left;
+            width: calc(100% - 85px);
+        }
+
+        #messageForm .input-group button {
+            float: left;
+            width: 80px;
+            height: 38px;
+            margin-left: 5px;
+        }
+
+        .chat-header {
+            text-align: center;
+            padding: 15px;
+            border-bottom: 1px solid #ececec;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .connecting {
+            padding-top: 5px;
+            text-align: center;
+            color: #777;
+            position: absolute;
+            top: 65px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+<div id="chat-page">
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>项目讨论组</h2>
+
+            <input type="button" class="layui-btn layui-btn-radius layui-btn-primary"  value="进入讨论组" onclick="initWebSocket()" />
+            <input class="layui-hide" id="input_roomName" Readonly=“true” value="12" size="10" maxlength="10">
+            <input type="button" class="layui-btn layui-btn-radius layui-btn-primary" value="退出讨论组" onclick="closeWs()" /><br>
+        </div>
+        <ul id="messageArea" class="msg_board">
+
+        </ul>
+        <form id="messageForm" name="messageForm">
+            <div class="form-group">
+                <div class="input-group clearfix">
+                    <input type="text" id="input_msg" placeholder="Type a message..." autocomplete="off" class="form-control"/>
+                    <button type="button" class="primary" onclick="send_msg()">发送</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="../../common/js/jquery-3.3.1.min.js"></script>
+<script src="../../layuiadmin/layui/layui.js"></script>
+<script type="text/javascript">
+    var webSocket;
+    var projectid=null;
+    var staffid=null;
+    var stafflist=new Object();
+    var staffname=null;
+    layui.config({
+        base: 'layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form', 'laydate','upload'], function(){
+        var $ = layui.$, form = layui.form, laydate = layui.laydate, upload=layui.upload;
+
+        $.ajax({
+            url: '/user/index',
+            contentType: "application/json;charset=UTF-8",
+            type: 'get',
+            async :false,
+            success: function (data) {
+
+                $.ajax({
+                    url: "/user/getstaffidbyuser/"+data,
+                    type: 'get',
+                    async :false,
+                    cache: false,
+                    contentType : 'application/json; charset=utf-8',
+                    success: function (text) {
+                        staffid=text;
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+
+                $.ajax({
+                    url: "/user/getprojectidbystaffid/"+staffid,
+                    type: 'get',
+                    async :false,
+                    cache: false,
+                    contentType : 'application/json; charset=utf-8',
+                    success: function (text) {
+                        console.log("projectid:"+text);
+                        if (text){
+                            projectid=text;
+                        }else{
+                            projectid="0";
+                        }
+
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.responseText);
+                    }
+                });
+
+            },
+            error: function (response) {
+                layer.msg(response.message);
+            }
+        });
+
+        $.ajax({
+            url: "/staff/staffquerylist2",
+            type: 'post',
+            cache: false,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (text) {
+                console.log(JSON.stringify(text.data));
+                $.each(text.data, function (index, item) {
+                    stafflist[item.id] = item.name;
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("==" + jqXHR.responseText);
+            }
+        });
+        console.log(stafflist[staffid]);
+        staffname=stafflist[staffid];
+        document.getElementById("input_roomName").value=projectid;
+
+    });
+
+
+
+    function send_msg() {
+        if (webSocket != null) {
+            var input_msg = document.getElementById("input_msg").value.trim();
+            if (input_msg == "") {
+                return;
+            }
+            webSocket.send(input_msg);
+            // 清除input框里的信息
+            document.getElementById("input_msg").value = "";
+        } else {
+            layer.msg("您已掉线，请重新进入讨论组...");
+            // alert("您已掉线，请重新进入讨论组...");
+        }
+    };
+
+    function closeWs() {
+        webSocket.close();
+    };
+
+    function initWebSocket() {
+        var roomName = document.getElementById("input_roomName").value;
+        // 房间名不能为空
+        if (roomName == null || roomName == "") {
+            layer.msg("请输入房间名");
+            // alert("请输入房间名");
+            return;
+        }
+        if ("WebSocket" in window) {
+//            alert("您的浏览器支持 WebSocket!");
+            if (webSocket == null) {
+                var url = "ws://localhost:8080/webSocket/chat/" + roomName+"/"+staffname;
+                // 打开一个 web socket
+                webSocket = new WebSocket(url);
+            } else {
+                layer.msg("您已进入讨论组...");
+                // alert("您已进入讨论组...");
+            }
+
+            webSocket.onopen = function () {
+                layer.msg("已进入讨论组，畅聊吧...")
+                // alert("已进入讨论组，畅聊吧...");
+            };
+
+            webSocket.onmessage = function (evt) {
+                var msg_board = document.getElementsByClassName("msg_board")[0];
+                var received_msg = evt.data;
+                var old_msg = msg_board.innerHTML;
+                msg_board.innerHTML = old_msg + received_msg + "<br>";
+                // 让滚动块往下移动
+                msg_board.scrollTop = msg_board.scrollTop + 40;
+            };
+
+            webSocket.onclose = function () {
+                // 关闭 websocket，清空信息板
+                layer.msg("连接已关闭...");
+                // alert("连接已关闭...");
+                webSocket = null;
+                document.getElementsByClassName("msg_board")[0].innerHTML = "";
+            };
+        }
+        else {
+            // 浏览器不支持 WebSocket
+            alert("您的浏览器不支持 WebSocket!");
+        }
+    }
+</script>
+</body>
+</html>

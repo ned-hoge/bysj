@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>中止项目编辑</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../layuiadmin/style/admin.css" media="all">
+    <style>
+        html {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-card" style="margin: 10px;">
+    <div class="layui-card-body">
+        <div class="layui-form" id="editFrom" action="" lay-filter="editFrom">
+            <!--<div class="layui-form-item">
+                <label class="layui-form-label">二级频道</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="catSec" lay-skin="switch" lay-filter="catSec" lay-text="是|否">
+                </div>
+            </div>-->
+            <div class="layui-form-item">
+                <label class="layui-form-label">中止原因</label>
+                <div class="layui-input-block">
+                    <textarea id="stopreasion" name="stopreasion" placeholder="请输入中止原因" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item layui-hide">
+                <button class="layui-btn" lay-submit lay-filter="catalogSubmit" id="catalogSubmit"></button>
+            </div>
+            <div class="layui-form-item layui-hide">
+                <input type="text" name="id" id="id" autocomplete="off">
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../../common/js/jquery-3.3.1.min.js"></script>
+<script src="../../layuiadmin/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '../../layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'workorder', 'table'], function(){
+
+        var form = layui.form;
+
+
+        var getParam = function (paramName) {
+            var reg = new RegExp("(^|&)" + paramName + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                return decodeURI(r[2]);
+            } else {
+                return null;
+            }
+        };
+
+        var id = getParam("id");
+         form.val("editFrom", {"id":id});
+
+
+    });
+
+
+</script>
+</body>
+</html>

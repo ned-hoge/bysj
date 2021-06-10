@@ -1,0 +1,576 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>项目编辑</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="../../layuiadmin/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="../../layuiadmin/style/admin.css" media="all">
+  <link rel="stylesheet" href="../../layuiadmin/style/template.css" media="all">
+</head>
+<body>
+
+
+<div class="layui-form layui-form-pane" lay-filter="dept-form" id="dept-form" style="padding: 20px;">
+
+  <div class="layui-form-item" style="display: none">
+    <label class="layui-form-label">项目ID</label>
+    <div class="layui-input-inline">
+      <input type="text" name="id" id="id"  queryTable="lesys_post_list"  style="width: 400px; " placeholder="请输入项目ID"
+             autocomplete="off" class="layui-input">
+    </div>
+  </div>
+
+    <div class="layui-form-item" style="display: none">
+        <label class="layui-form-label">中止原因</label>
+        <div class="layui-input-inline">
+            <input type="text" name="stopreasion" id="stopreasion"  queryTable="lesys_post_list"  style="width: 400px; " placeholder="请输入..."
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+  <div style="text-align: center;font-size: larger;font-weight: bolder;margin-bottom: 20px">
+    项目基本信息
+  </div>
+  <div class="layui-form-item">
+    <div class="layui-input-inline" style="display: flex;width: 1350px">
+      <label class="layui-form-label" style="width: 200px">项目名称</label>
+      <div style="width: 1150px">
+        <input type="text" name="projectname" id="projectname"  placeholder="请输入"
+               autocomplete="off" class="layui-input" >
+      </div>
+    </div>
+
+  </div>
+
+  <div class="layui-form-item">
+    <div class="layui-input-inline" style="display: flex;width:1350px">
+      <label class="layui-form-label" style="width:200px">甲方</label>
+      <div style="width: 1150px">
+        <input type="text" name="partya" id="partya"   placeholder="请输入"
+               autocomplete="off" class="layui-input" lay-verify="required">
+      </div>
+
+    </div>
+  </div>
+
+  <div class="layui-form-item">
+    <div class="layui-input-inline" style="display: flex;width: 400px">
+      <label class="layui-form-label" style="width: 200px">负责人</label>
+      <div class="layui-input-inline" style_="width: 200px; ">
+        <select name="requireing" id="requireing" lay-filter="requireing" >
+        </select>
+      </div>
+    </div>
+    <div class="layui-input-inline" style="display: flex;width: 450px">
+      <label class="layui-form-label" style="width: 200px">联系电话</label>
+      <input type="text" name="telephone" id="telephone" style="width: 250px"  placeholder="请输入"
+             autocomplete="off" class="layui-input" >
+    </div>
+    <div class="layui-input-inline" style="display: flex;width: 450px">
+      <label class="layui-form-label" style="width: 200px">邮箱</label>
+      <input type="text" name="mailbox" id="mailbox" style="width: 250px" placeholder="请输入"
+             autocomplete="off" class="layui-input" >
+    </div>
+  </div>
+
+  <div class="layui-form-item">
+    <div class="layui-input-inline" style="display: flex;width: 1350px">
+      <label class="layui-form-label" style="width:200px">项目完成情况</label>
+      <input type="text" name="requirecomplete" id="requirecomplete" style="width: 1150px" placeholder="请输入"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+  </div>
+
+
+  <div class="layui-form-item">
+    <div class="layui-input-inline" style="display: flex;width: 1350px;">
+      <label class="layui-form-label" style="width:200px;height: auto;">项目简介</label><!--line-height是垂直剧中-->
+      <input type="text" name="requiresum" id="requiresum"  style="height: auto;width: 1150px" placeholder="请输入"
+             autocomplete="off" class="layui-input" lay-verify="required">
+    </div>
+  </div>
+
+  <div class="layui-inline layui-form-item">
+    <label class="layui-form-label" style="width: 200px">项目期限</label>
+    <div class="layui-input-inline">
+      <input type="text" class="layui-input" name="posttime" id="posttime" placeholder="yyyy-MM-dd">
+    </div>
+    <div class="layui-input-inline" style="width: 20px;line-height: 40px;text-align: center">至</div>
+    <div class="layui-input-inline">
+      <input type="text" class="layui-input" name="endtime" id="endtime" placeholder="yyyy-MM-dd">
+    </div>
+  </div>
+
+
+  <div id="test1"></div>
+
+
+  <div class="layui-form-item layui-hide">
+    <input type="button" lay-submit lay-filter="layuiadmin-app-form-submit" id="layuiadmin-app-form-submit"
+           value="确认添加">
+    <input type="button" lay-submit lay-filter="layuiadmin-app-form-edit" id="layuiadmin-app-form-edit"
+           value="确认编辑">
+  </div>
+
+
+
+
+<script src="../../layuiadmin/layui/layui.js"></script>
+<script src="../../layuiadmin/layui/css/layui.css"></script>
+<script src="../../common/js/jquery-3.3.1.min.js"></script>
+  <script src="../../common/js/Mtils.js"></script>
+<script>
+  layui.config({
+    base: '../../layuiadmin/' //静态资源所在路径
+  }).extend({
+    index: 'lib/index' //主入口模块
+  }).use(['index', 'workorder', 'table','element','laydate','transfer'], function(){
+    var $ = layui.$
+            ,form = layui.form
+            ,table = layui.table;
+      var laydate = layui.laydate;
+    var transfer = layui.transfer;
+var requireing=null;
+    // laydate.render({
+    //   elem: '#posttime'
+    //   //, value: new Date()
+    //   , trigger: 'click'
+    // });
+    laydate.render({
+      elem: '#posttime'
+      ,isInitValue: true
+    });
+      laydate.render({
+        elem: '#endtime'
+        ,isInitValue: true
+      });
+
+    var setSelectData = function ($, url, elemId, valueName, textName) {
+      //设置下拉数源  add by dingji
+      /**
+       *
+       * response=[{id：xx1,name:xx1},{id：xx2,name:xx2}];
+       * @param url
+       * @param elemId
+       */
+      // 请求
+      $.ajax({
+        type: 'post',
+        url: url,
+        cache: false,
+        async: false,
+        contentType: "application/json;charset=UTF-8",
+        success: function (response) {
+          var data = !!(response.data) ? response.data : response;
+          var t = "";
+          var key = elemId.substring(1);
+          SelReqData = {};
+          SelReqData[key] = data;
+          $(elemId).html("");
+          $(elemId).append("<option value= '' >请选择</option> ");
+          if (data != null) {
+            for (var i = 0; i < data.length; i++) {
+              //console.log(response[i].id);
+              //console.log(response[i].name);
+              $(elemId).append("<option value= '" + data[i][valueName] + "' >" + data[i][textName] + "</option> ");
+            }
+            //form.render('select');
+          }
+        }
+      });
+    };
+
+
+    setSelectData($, "/staff/staffquerylist3", "#requireing", "id", "name");
+    form.render();
+
+    //负责人下拉框监听
+    form.on('select(requireing)', function (data) {
+      var staffid = data.elem[data.elem.selectedIndex].value;
+
+      if(staffid){
+         // console.log("staffid:"+staffid);
+
+        $.ajax({
+          url: "/staff/get-by-id/"+staffid,
+          type: 'get',
+          cache: false,
+          contentType: 'application/json; charset=utf-8',
+          success: function (response) {
+            if(response){                  //判断是否有值然后取邮箱和电话给两个框赋值
+              console.log(JSON.stringify(response));
+              $('#mailbox').val(response.mailbox);
+              $('#telephone').val(response.telephone);
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            alert(jqXHR.responseText);
+          }
+        });
+
+      }
+
+    });
+
+
+      var getParam = function (paramName) {
+          var reg = new RegExp("(^|&)" + paramName + "=([^&]*)(&|$)", "i");
+          var r = window.location.search.substr(1).match(reg);
+          if (r != null) {
+              return decodeURI(r[2]);
+          } else {
+              return null;
+          }
+      };
+
+      var id = getParam("id");
+
+      if(id!= null && id != ""){
+          selectById(id);
+
+          var obj = {
+              "post":'',
+              "name": '',
+            "remark":id
+          };
+
+
+          layui.use('transfer', function(){
+              var transfer = layui.transfer;
+
+              $.ajax({
+                  url: "/staff/staffquerylist",
+                  data: JSON.stringify(obj),
+                  type: 'post',
+                  cache: false,
+                  contentType: 'application/json; charset=utf-8',
+                  success: function (response1) {
+                      if(response1){
+                          console.log(response1);
+
+                          $.ajax({
+                              url: "/staff/staffprojectquerylist/"+id,
+                              type: 'get',
+                              cache: false,
+                              contentType: 'application/json; charset=utf-8',
+                              success: function (response2) {
+                                  if(response2){
+                                      console.log(JSON.stringify(response2));
+                                      //渲染
+                                      transfer.render({
+                                          elem: '#test1'  //绑定元素
+                                          // ,data: [
+                                          //   {"value": "1", "title": "李白", "disabled": "", "checked": ""}
+                                          //   ,{"value": "4", "title": "杜甫", "disabled": "", "checked": ""}
+                                          //   ,{"value": "3", "title": "贤心", "disabled": "", "checked": ""}
+                                          // ]
+                                          ,data: response1
+                                          ,parseData: function(response1){
+                                              return {
+                                                  "value": response1.id //数据值
+                                                  ,"title": response1.name //数据标题
+                                                  ,"disabled": response1.disabled  //是否禁用
+                                                  ,"checked": '' //是否选中
+                                              }
+                                          }
+                                          ,value: response2
+                                          ,id: 'demo1' //定义索引
+                                          ,title:['员工库','已添加']
+                                      });
+                                  }
+                              },
+                              error: function (jqXHR, textStatus, errorThrown) {
+                                  alert(jqXHR.responseText);
+                              }
+                          });
+
+                      }
+                  },
+                  error: function (jqXHR, textStatus, errorThrown) {
+                      alert(jqXHR.responseText);
+                  }
+              });
+
+          });
+
+
+      }else{
+          var obj = {
+            "post":"",
+            "name": "",
+            "projectid":"1"    //用来筛选没有项目id的员工
+          };
+
+          $.ajax({
+            url: "/staff/staffquerylist",
+            data: JSON.stringify(obj),
+            type: 'post',
+            cache: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response1) {
+              if(response1){
+                //console.log(response1);
+                      transfer.render({
+                        elem: '#test1'  //绑定元素
+                        ,data: response1
+                        ,parseData: function(response1){
+                          return {
+                            "value": response1.id //数据值
+                            ,"title": response1.name //数据标题
+                            ,"disabled": response1.disabled  //是否禁用
+                            ,"checked": '' //是否选中
+                          }
+                        }
+                        ,id: 'demo1' //定义索引
+                        ,title:['员工库','已添加']
+                      });
+                    }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert(jqXHR.responseText);
+            }
+          });
+
+      }
+
+
+      function selectById(id){
+          $.ajax({
+              url: "/project/get-by-id/"+id,
+              type: 'get',
+              cache: false,
+              contentType: 'application/json; charset=utf-8',
+              success: function (response) {
+                  //console.log(response);
+                  if(response){                  //判断是否新增然后给弹窗赋值
+                      //form.val("dept-form", response);
+                      // form.val("dept-form",{
+                      //   "id":response.id,
+                      //   "mailbox":'*'+response.mailbox,
+                      //   "major":response.major,
+                      //   "post":response.post,
+                      //   "telephone":response.telephone,
+                      // });
+                      form.val("dept-form",response);
+
+                    requireing=response.requireing;
+
+                    $.ajax({
+                      url: "/staff/get-by-id/"+response.requireing,
+                      type: 'get',
+                      cache: false,
+                      contentType: 'application/json; charset=utf-8',
+                      success: function (response) {
+                        if(response){                  //判断是否有值然后取邮箱和电话给两个框赋值
+                          console.log(JSON.stringify(response));
+                          $('#mailbox').val(response.mailbox);
+                          $('#telephone').val(response.telephone);
+                        }
+                      },
+                      error: function (jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.responseText);
+                      }
+                    });
+
+                    layui.use('laydate', function(){                                                         //日期框赋值
+                      var laydate = layui.laydate;
+                      laydate.render({
+                        elem: '#posttime'
+                        ,value: response.posttime
+                        ,isInitValue: true
+                      });
+                      laydate.render({
+                        elem: '#endtime'
+                        ,value: response.endtime
+                        ,isInitValue: true
+                      });
+                    });
+                      //document.getElementById("filename").setAttribute('value',response.data.fdfName);
+                      //form.render();
+                  }
+              },
+              error: function (jqXHR, textStatus, errorThrown) {
+                  alert(jqXHR.responseText);
+              }
+          });
+
+      }
+
+
+    //监听提交
+    form.on('submit(layuiadmin-app-form-submit)', function (data) {
+      var field = data.field; //获取提交的字段
+
+      var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+
+      var getData = transfer.getData('demo1'); //获取穿梭框右边的数据
+      //console.log(getData[0]["value"]);  //可以放在确定后获取所有id 然后更新相关id 的项目id和disabledid  获取穿梭框右边的数据
+      if (id == "" || id == null) {
+
+        if(!getData[0]){
+          layer.msg("请添加员工");
+          //该项目没有员工参与
+        }else{
+          //console.log(JSON.stringify(getData));
+          //提交 Ajax 成功后，关闭当前弹层并重载表格
+          var id1=Mtils.security.uuid(32, 16);
+          field["id"]= id1;  //获取一个随机id
+
+          getData[0]["disabled"]=id1;
+          $.ajax({
+            url: "/staff/updatestaff",
+            type: 'post',
+            data: JSON.stringify(getData),
+            cache: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (text) {
+              console.log("员工穿梭更新成功")
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert("==" + jqXHR.responseText);
+            }
+          });
+
+          var jsonData = JSON.stringify(field);
+          console.log(jsonData);
+          $.ajax({
+            url: "/project/saveProject",
+            type: 'post',
+            data: jsonData,
+            cache: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (text) {
+              console.log(text);
+              if (text == '新增成功') {
+                parent.layer.close(index); //再执行关闭
+              } else {
+                layer.alert("保存失败了！");
+              }
+              parent.layui.table.reload('data-grid'); //重载表格
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+              alert("==" + jqXHR.responseText);
+            }
+          });
+
+          $.ajax({
+            url: '/user/updateuserbystaffid?state=3&staffid='+field.requireing,
+            contentType: "application/json;charset=UTF-8",
+            type: 'get',
+            success: function (data) {
+
+            },
+            error: function (response) {
+              layer.msg(response.message);
+            }
+          });
+
+        }
+
+
+      } else {
+
+        if(!getData[0]){
+          layer.msg("请添加员工");
+          //该项目没有员工参与
+        }
+        else{
+
+          var jsonData = JSON.stringify(field);
+
+          //提交 Ajax 成功后，关闭当前弹层并重载表格
+          $.ajax({
+            url: "/project/update",
+            type: 'post',
+            data: jsonData,
+            cache: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (text) {
+              console.log("=========================3" + text);
+              if (text == "更新成功") {
+                parent.layer.close(index); //再执行关闭
+              } else {
+                layer.alert("更新失败了！");
+              }
+              parent.layui.table.reload('data-grid'); //重载表格
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert("==" + jqXHR.responseText);
+            }
+          });
+
+          getData[0]["disabled"]=id;
+          getData[0]["checked"]='outstaff';
+          console.log(JSON.stringify(getData));
+          $.ajax({
+            url: "/staff/updatestaff",
+            type: 'post',
+            data: JSON.stringify(getData),
+            cache: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (text) {
+              console.log("员工穿梭更新成功")
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              alert("==" + jqXHR.responseText);
+            }
+          });
+
+if(field.requireing!=requireing){   //负责人id判断
+
+  $.ajax({
+    url: '/user/updateuserbystaffid?state=2&staffid='+requireing,
+    contentType: "application/json;charset=UTF-8",
+    type: 'get',
+    success: function (data) {
+
+    },
+    error: function (response) {
+      layer.msg(response.message);
+    }
+  });
+
+  $.ajax({
+    url: '/user/updateuserbystaffid?state=3&staffid='+field.requireing,
+    contentType: "application/json;charset=UTF-8",
+    type: 'get',
+    success: function (data) {
+
+    },
+    error: function (response) {
+      layer.msg(response.message);
+    }
+  });
+}else{
+  $.ajax({
+    url: '/user/updateuserbystaffid?state=3&staffid='+field.requireing,
+    contentType: "application/json;charset=UTF-8",
+    type: 'get',
+    success: function (data) {
+
+    },
+    error: function (response) {
+      layer.msg(response.message);
+    }
+  });
+}
+
+
+
+        }
+      }
+
+    });
+
+
+
+  });
+  </script>
+</body>
+</html>

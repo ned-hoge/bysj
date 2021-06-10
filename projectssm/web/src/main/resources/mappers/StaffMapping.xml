@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.projectssm.mapper.StaffMapper">
+
+    <resultMap id="BaseResultMap" type="com.projectssm.model.Staff">
+        <result column="id" jdbcType="VARCHAR" property="id" />
+        <result column="post" jdbcType="VARCHAR" property="post" />
+        <result column="telephone" jdbcType="VARCHAR" property="telephone" />
+        <result column="major" jdbcType="VARCHAR" property="major" />
+        <result column="mailbox" jdbcType="VARCHAR" property="mailbox" />
+    </resultMap>
+
+
+
+    <select id="staffquerylist" resultType="com.projectssm.model.Staff">
+        select * from staff WHERE post LIKE '%'
+        <if test="staff.post != null and staff.post != ''">
+            and post like  concat('%',#{staff.post},'%')
+        </if>
+        <if test="staff.name != null and staff.name != ''">
+            and name like concat('%',#{staff.name},'%')
+        </if>
+        <if test="staff.projectid != null and staff.projectid != ''">
+            and projectid is null
+--             新增项目员工集合 未加入项目员工
+        </if>
+        <if test="staff.remark != null and staff.remark != ''">
+            and projectid = #{staff.remark} or projectid is null
+--             编辑项目页面的员工集合 本项目员工以及未加入项目元哦概念股
+        </if>
+    </select>
+
+    <select id="staffquerylist2" resultType="com.projectssm.model.Staff">
+        select * from staff
+    </select>
+<!--获取没有绑定user的员工列表-->
+    <select id="staffquerylist3" resultType="com.projectssm.model.Staff">
+        SELECT * FROM staff WHERE id NOT IN (SELECT staffid FROM USER WHERE staffid  IS NOT NULL)
+    </select>
+
+
+    <select id="querylistbyprojectid" resultType="com.projectssm.model.Staff">
+        select * from staff where projectid=#{projectid}
+    </select>
+
+    <select id="getStaffById" resultType="com.projectssm.model.Staff">
+        select * from staff WHERE id = #{id}
+    </select>
+
+    <insert id="add" parameterType="com.projectssm.model.Staff">
+        INSERT INTO staff  VALUES (REPLACE(UUID(),"-",""), #{staff.name}, #{staff.post}, #{staff.telephone}, #{staff.major}, #{staff.mailbox}, #{staff.idnumber}, #{staff.title}, #{staff.workex}, #{staff.contact}, #{staff.remark},null,null)
+    </insert>
+
+    <delete id="delete" parameterType="java.util.Map">
+    	delete from staff WHERE id = #{id}
+  	</delete>
+
+
+    <update id="update" parameterType="com.projectssm.model.Staff">
+        UPDATE staff
+            SET staff.name = #{staff.name},
+                staff.post = #{staff.post},
+                staff.telephone = #{staff.telephone},
+                staff.major = #{staff.major},
+                staff.mailbox = #{staff.mailbox},
+                staff.idnumber = #{staff.idnumber},
+                staff.title = #{staff.title},
+                staff.workex = #{staff.workex},
+                staff.contact = #{staff.contact},
+                staff.remark = #{staff.remark}
+         WHERE staff.id = #{staff.id};
+    </update>
+
+
+    <select id="staffprojectquerylist" parameterType="java.util.Map" resultType="java.util.Map">--     获取参加该项目id的员工的id
+        SELECT id FROM staff WHERE projectid=#{id}
+    </select>
+
+    <update id="updatestaff" parameterType="com.projectssm.model.Staff">
+        UPDATE staff
+            SET staff.projectid =  #{projectid}
+         WHERE staff.id = #{id};
+    </update>
+
+    <update id="updatestaff2"  parameterType="java.util.List">
+        UPDATE staff
+            SET staff.projectid = null
+         WHERE staff.projectid=#{projectid} AND id NOT IN
+        <foreach item="item" index="index" collection="str" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+<!--    改变项目状态时解放员工状态-->
+    <update id="updatestaff3"  parameterType="com.projectssm.model.Staff">
+        UPDATE staff
+        SET staff.projectid = null
+        WHERE staff.projectid=#{id}
+    </update>
+</mapper>

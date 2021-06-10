@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../common/js/jquery-3.3.1.min.js"></script>
+    <script>
+        function a(){
+            // $.ajax({
+            //     url:"sjkjh",
+            //     type:"post",
+            //     dataType:"json",
+            //     success:function(data) {
+            //         document.getElementById("test").innerHTML=data;
+            //         alert(data);
+            //     }
+            // });
+            $.ajax({
+                url:'../sjkcs',
+                type: "request",
+                contentType: "application/json;charset=UTF-8",
+                success: function (data) {
+                    console.log("返回结果:" + data);
+                    document.getElementById("test").innerHTML=data;
+                },
+                error: function (jqXHR) {
+                    alert("==" + jqXHR.responseText);
+                }
+            });
+        }
+
+        /**
+         * 获取当前页面url传递的参数（例如http://xxxxxx?paramName1=value&paramName2=value）
+         * @param paramName
+         * @returns {string|null}
+         */
+        getParam = function (paramName) {
+            var reg = new RegExp("(^|&)" + paramName + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) {
+                document.getElementById("test").innerHTML=decodeURI(r[2]);
+            } else {
+                document.getElementById("test").innerHTML="wrong";
+            }
+        };
+    </script>
+</head>
+<body>
+<textarea id="test" name="test"></textarea>
+<button onclick="getParam('id')">testsql</button>
+</body>
+</html>
